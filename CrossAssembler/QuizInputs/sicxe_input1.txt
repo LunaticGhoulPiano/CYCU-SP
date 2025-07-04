@@ -1,0 +1,30 @@
+COPY START 0
+     var1 RESW 10
+     var2 RESB 12
+     var3 EQU  15
+BEGIN hio
+addr s,t
+divr b,a
+addf var3,x
++div var2,x
+compr t,b
+clear a
++and var3
+compf 0
+float
+MIDDLE +j BEGIN
+jsub MIDDLE
+rsub
+norm
+lda var2,x
++mulf var1
+mulr a,f
+jeq MIDDLE
+rmo x,a
+FINAL stt var1
+subf var3,x
+subr a,b
+tixr s
++wd var2
+tio
+END FIRST

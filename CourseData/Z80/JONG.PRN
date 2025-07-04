@@ -1,0 +1,23 @@
+
+C 0000                  ;VIC  C-Compiler V2.0  (c) VE/DC 1995                            
+C 0000                  ;	USERS TEXT AREA......         
+C 0000                  .main:
+C 0000 110900   R       	LD	DE,C301+0
+C 0003 D5               	PUSH	DE
+C 0004 CD0000   E       	CALL	.puts
+C 0007 C1               	POP	BC
+C 0008 C9               	RET
+C 0009                  C301:
+C 0009                  
+C 0009 48656C6C
+       6F2E2E2E
+       00               	DEFB	72,101,108,108,111,46,46,46,0
+C 0012                  	GLOBAL	.main
+C 0012                  	EXTERNAL	.puts
+D 0000                  	DSEG
+D 0000                  
+D 0000                  ;0 ERROR(S) 
+D 0000                  	END
+
+cseg:	0000  -   0011 
+0 ERROR(S)

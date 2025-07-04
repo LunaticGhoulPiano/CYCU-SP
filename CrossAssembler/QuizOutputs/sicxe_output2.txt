@@ -1,0 +1,29 @@
+Line    Loc     Source statement              Object code
+
+  1     0000    SICXE   START   0
+  2     0000    A1      RESW    10
+  3     001E    A2      RESB    200
+  4     00E6    STR1    WORD    C'ACC'        414343
+  5     00E9    L1      FLOAT                 C0
+  6     00EA            STS     T2            7F2FDB
+  7     00ED            DIVF    NUM2          672022
+  8     00F0            ADDR    F,L           9062
+  9     00F2    L2      +JGT    L1            371000E9
+ 10     00F6            LDCH    A2,X          53AF25
+ 11     00F9            JLT     0             3B0000
+ 12     00FC            LDB     #2            690002
+ 13     00FF            j       L1            3F2FE7
+ 14     0102    L3      +LDT    #768955       751BBBBB
+ 15     0064    T1      EQU     100
+ 16     00C8    T2      EQU     200
+ 17     0106            LDB     T1,X          6BAF5B
+ 18     0109    L4      TIXR    X             B810
+ 19     010B            AND     @A1           422EF2
+ 20     010E            COMP    @NUM3         2A2002
+ 21     0111    NUM1    BYTE    X'FF'         FF
+ 22     0112    NUM2    BYTE    0             00
+ 23     0113    NUM3    WORD    100           000064
+ 24     0116    STR2    BYTE    C'HELLO'      48454C4C4F
+ 25     011B    L5      +LPS    @STR1         D21000E6
+ 26     011F            MUL     #NUM1         212FEF
+ 27             FINAL   END     SICXE

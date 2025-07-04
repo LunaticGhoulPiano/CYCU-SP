@@ -1,0 +1,228 @@
+LOADER   START   80                ABSOLUTE LOADER FOR SIC        F128
+LOADER  START 80                ABSOLUTE LOADER FOR SIC        F
+.                                                                 T128
+. THIS LOADER READS AN OBJECT PROGRAM FROM DEVICE F2 AND LOADS IT T128
+. INTO MEMORY. THE HEADER RECORD FOR THE OBJECT PROGRAM IS NOT    T128
+. PROCESSED. WHEN THE END RECORD IS READ, THE LOADER JUMPS TO     T128
+. THE INDICATED STARTING ADDRESS.                                 T128
+.                                                                 T128
+. ERRORS IN THE OBJECT PROGRAM WILL RESULT IN AN ERROR HALT       T128
+. (ON AN ILLEGAL INSTRUCTION TRAP). THE ADDRESS OF THE TRAP       T128
+. (THE BYTES LABELLED HALT1 THROUGH HALT4) WILL INDICATE THE      T128
+. TYPE OF ERROR DETECTED.                                         T128
+.                                                                 T128
+.     REGISTER X = NEXT ADDRESS TO BE LOADED                      T128
+.                                                                 T128
+         JSUB    READCHAR          READ FIRST CHARACTER           F128
+        JSUB  READCHAR          READ FIRST CHARACTER           F
+         COMP    HEADREC           CHECK FOR HEADER RECORD        F131
+        COMP  HEADREC           CHECK FOR HEADER RECORD        F
+         JEQ     SKIPHEAD          CONTINUE IF HEADER IS PRESENT, F134
+        JEQ   SKIPHEAD          CONTINUE IF HEADER IS PRESENT, F
+HALT1    BYTE    X'FF'               OTHERWISE HALT (NO HEADER)   F137
+HALT1   BYTE  X'FF'               OTHERWISE HALT (NO HEADER)   F
+SKIPHEAD JSUB    SKIPEOL           SKIP THE REST OF THE HEADER    F138
+SKIPHEADJSUB  SKIPEOL           SKIP THE REST OF THE HEADER    F
+PROCLOOP JSUB    READCHAR          READ FIRST CHAR OF NEXT RECORD F141
+PROCLOOPJSUB  READCHAR          READ FIRST CHAR OF NEXT RECORD F
+         COMP    TEXTREC           CHECK FOR TEXT RECORD          F144
+        COMP  TEXTREC           CHECK FOR TEXT RECORD          F
+         JEQ     PROCTEXT                                         F147
+        JEQ   PROCTEXT                                         F
+         COMP    ENDREC            CHECK FOR END RECORD           F150
+        COMP  ENDREC            CHECK FOR END RECORD           F
+         JEQ     PROCEND                                          F153
+        JEQ   PROCEND                                          F
+HALT2    BYTE    X'FF'             ERROR HALT (UNKNOWN REC TYPE)  F156
+HALT2   BYTE  X'FF'             ERROR HALT (UNKNOWN REC TYPE)  F
+PROCTEXT JSUB    GETADDR           GET ADDRESS FROM TEXT RECORD   F157
+PROCTEXTJSUB  GETADDR           GET ADDRESS FROM TEXT RECORD   F
+         LDA     ZERO                                             F160
+        LDA   ZERO                                             F
+         JSUB    GETD              GET FIRST HEX DIGIT OF LENGTH  F163
+        JSUB  GETD              GET FIRST HEX DIGIT OF LENGTH  F
+         MUL     K16               SHIFT LEFT 4 BITS              F166
+        MUL   K16               SHIFT LEFT 4 BITS              F
+         STA     TEMP              SAVE SHIFTED VALUE             F169
+        STA   TEMP              SAVE SHIFTED VALUE             F
+         JSUB    GETD              GET SECOND HEX DIGIT OF LENGTH F172
+        JSUB  GETD              GET SECOND HEX DIGIT OF LENGTH F
+         ADD     TEMP              COMBINE TO FORM LENGTH OF TEXT F175
+        ADD   TEMP              COMBINE TO FORM LENGTH OF TEXT F
+         ADD     ADDRESS           ADD STARTING ADDRESS OF TEXT   F178
+        ADD   ADDRESS           ADD STARTING ADDRESS OF TEXT   F
+         STA     LIMIT             SAVE RESULT AS LIMIT ADDRESS   F181
+        STA   LIMIT             SAVE RESULT AS LIMIT ADDRESS   F
+         LDX     ADDRESS           LOAD TEXT ADDRESS INTO REG X   F184
+        LDX   ADDRESS           LOAD TEXT ADDRESS INTO REG X   F
+TEXTLOOP LDA     ZERO                                             F187
+TEXTLOOPLDA   ZERO                                             F
+         JSUB    GETD              GET FIRST DIGIT OF OBJECT BYTE F190
+        JSUB  GETD              GET FIRST DIGIT OF OBJECT BYTE F
+         MUL     K16               SHIFT LEFT 4 BITS              F193
+        MUL   K16               SHIFT LEFT 4 BITS              F
+         STA     TEMP              SAVE SHIFTED VALUE             F196
+        STA   TEMP              SAVE SHIFTED VALUE             F
+         JSUB    GETD              GET SECOND DIGIT OF OBJECT BYTEF199
+        JSUB  GETD              GET SECOND DIGIT OF OBJECT BYTEF
+         ADD     TEMP              COMBINE TO FORM BYTE VALUE     F202
+        ADD   TEMP              COMBINE TO FORM BYTE VALUE     F
+         STCH    0,X               STORE IN MEMORY                F205
+        STCH  0,X               STORE IN MEMORY                F
+         TIX     LIMIT             ADD 1 TO ADDRESS BEING LOADED  F208
+        TIX   LIMIT             ADD 1 TO ADDRESS BEING LOADED  F
+         JLT     TEXTLOOP          LOOP UNTIL LIMIT REACHED       F211
+        JLT   TEXTLOOP          LOOP UNTIL LIMIT REACHED       F
+         JSUB    SKIPEOL           SKIP REMINDER OF RECORD AND EOLF214
+        JSUB  SKIPEOL           SKIP REMINDER OF RECORD AND EOLF
+         J       PROCLOOP          GO TO PROCESS NEXT RECORD      F217
+        J     PROCLOOP          GO TO PROCESS NEXT RECORD      F
+PROCEND  JSUB    GETADDR           GET ADDRESS FROM END RECORD    F220
+PROCEND JSUB  GETADDR           GET ADDRESS FROM END RECORD    F
+         LDX     ADDRESS           LOAD INTO REGISTER X           F223
+        LDX   ADDRESS           LOAD INTO REGISTER X           F
+         J       0,X               JUMP TO STARTING ADDRESS       F226
+        J     0,X               JUMP TO STARTING ADDRESS       F
+.                                                                 T229
+. THIS SUBROUTINE READS AN ADDRESS FROM AN OBJECT PROGRAM         T229
+. RECORD (6 HEX DIGITS) AND STORES IT IN INTEGER FORM IN THE      T229
+. VARIABLE NAMED ADDRESS.                                         T229
+.                                                                 T229
+GETADDR  STL     RETGA             SAVE RETURN ADDRESS            F229
+GETADDR STL   RETGA             SAVE RETURN ADDRESS            F
+         LDX     ZERO              INITIALIZE ADDRESS TO ZERO     F232
+        LDX   ZERO              INITIALIZE ADDRESS TO ZERO     F
+         STX     ADDRESS                                          F235
+        STX   ADDRESS                                          F
+ADDRLOOP JSUB    GETD              GET HEX DIGIT OF ADDRESS       F238
+ADDRLOOPJSUB  GETD              GET HEX DIGIT OF ADDRESS       F
+         STA     TEMP                                             F241
+        STA   TEMP                                             F
+         LDA     ADDRESS           SHIFT ADDRESS LEFT 4 BITS      F244
+        LDA   ADDRESS           SHIFT ADDRESS LEFT 4 BITS      F
+         MUL     K16                                              F247
+        MUL   K16                                              F
+         ADD     TEMP              ADD IN NEW HEX DIGIT VALUE     F250
+        ADD   TEMP              ADD IN NEW HEX DIGIT VALUE     F
+         STA     ADDRESS                                          F253
+        STA   ADDRESS                                          F
+         TIX     K6                LOOP UNTIL ALL 6 DIGITS        F256
+        TIX   K6                LOOP UNTIL ALL 6 DIGITS        F
+         JLT     ADDRLOOP            HAVE BEEN PROCESSED          F259
+        JLT   ADDRLOOP            HAVE BEEN PROCESSED          F
+         LDL     RETGA             RETURN TO CALLER               F262
+        LDL   RETGA             RETURN TO CALLER               F
+         RSUB                                                     F265
+        RSUB                                                   F
+.                                                                 T268
+. THIS SUBROUTINE READS THE NEXT CHARACTER OF THE OBJECT PROGRAM  T268
+.                                                                 T268
+READCHAR LDA     ZERO                                             F268
+READCHARLDA   ZERO                                             F
+READLOOP TD      INPUT             TEST INPUT DEVICE              F271
+READLOOPTD    INPUT             TEST INPUT DEVICE              F
+         JEQ     READLOOP          LOOP UNTIL READY               F274
+        JEQ   READLOOP          LOOP UNTIL READY               F
+         RD      INPUT             READ CHARACTER                 F277
+        RD    INPUT             READ CHARACTER                 F
+         RSUB                      RETURN TO CALLER               F280
+        RSUB                    RETURN TO CALLER               F
+.                                                                 T283
+. THIS SUBROUTINE READS ONE CHARACTER FROM THE INPUT AND COVERTS  T283
+. IT FROM ASCII CODE TO HEX DIGIT VALUE. THE CONVERTED HEX        T283
+. DIGIT VALUE IS RETURNED IN REGISTER A                           T283
+.                                                                 T283
+GETD     STL     RETGD             SAVE RETURN ADDRESS            F283
+GETD    STL   RETGD             SAVE RETURN ADDRESS            F
+GETDLOOP JSUB    READCHAR          READ CHARACTER                 F286
+GETDLOOPJSUB  READCHAR          READ CHARACTER                 F
+         COMP    HEX04             IF END OF FILE,                F289
+        COMP  HEX04             IF END OF FILE,                F
+         JEQ     HALT3               GO TO ERROR HALT             F292
+        JEQ   HALT3               GO TO ERROR HALT             F
+         COMP    HEX30             COMPARE TO CHARACTER '0'       F295
+        COMP  HEX30             COMPARE TO CHARACTER '0'       F
+         JLT     GETDLOOP          SKIP CHARACTERS LESS THAN '0'  F298
+        JLT   GETDLOOP          SKIP CHARACTERS LESS THAN '0'  F
+         SUB     HEX30             SUBTRACT HEX 30 FROM ASCII CODEF301
+        SUB   HEX30             SUBTRACT HEX 30 FROM ASCII CODEF
+         COMP    K10               IF RESULT < 10, CONVERSION IS  F304
+        COMP  K10               IF RESULT < 10, CONVERSION IS  F
+         JLT     RETURN              COMPLETE. OTHERWISE, SUBTRACTF307
+        JLT   RETURN              COMPLETE. OTHERWISE, SUBTRACTF
+         SUB     K7                  7 MORE (FOR 'A' THROUGH 'F') F310
+        SUB   K7                  7 MORE (FOR 'A' THROUGH 'F') F
+         COMP    K10               CHECK FOR ILLEGAL HEX DIGITS   F313
+        COMP  K10               CHECK FOR ILLEGAL HEX DIGITS   F
+         JLT     HALT4             GO TO ERROR HALT IF ILLEGAL    F316
+        JLT   HALT4             GO TO ERROR HALT IF ILLEGAL    F
+         COMP    K15                                              F319
+        COMP  K15                                              F
+         JGT     HALT4                                            F322
+        JGT   HALT4                                            F
+RETURN   LDL     RETGD             RETURN TO CALLER               F325
+RETURN  LDL   RETGD             RETURN TO CALLER               F
+         RSUB                                                     F328
+        RSUB                                                   F
+HALT3    BYTE    X'FF'             ERROR HALT (PREMATURE EOF)     F331
+HALT3   BYTE  X'FF'             ERROR HALT (PREMATURE EOF)     F
+HALT4    BYTE    X'FF'             ERROR HALT (ILLEGAL HEX DIGIT) F332
+HALT4   BYTE  X'FF'             ERROR HALT (ILLEGAL HEX DIGIT) F
+.                                                                 T333
+. THIS SUBROUTINE SKIPS THE REST OF THE CURRENT OBJECT            T333
+. PROGRAM RECORD, INCLUDING THE END-OF-LINE MARKER                T333
+.                                                                 T333
+SKIPEOL  STL     RETS              SAVE RETURN ADDRESS            F333
+SKIPEOL STL   RETS              SAVE RETURN ADDRESS            F
+EOLLOOP  JSUB    READCHAR          READ CHARACTER                 F336
+EOLLOOP JSUB  READCHAR          READ CHARACTER                 F
+         COMP    ZERO              CHECK FOR END-OF-LINE          F339
+        COMP  ZERO              CHECK FOR END-OF-LINE          F
+         JEQ     EXIT              EXIT IF END-OF-LINE FOUND      F342
+        JEQ   EXIT              EXIT IF END-OF-LINE FOUND      F
+         J       EOLLOOP           LOOP                           F345
+        J     EOLLOOP           LOOP                           F
+EXIT     LDL     RETS              RETURN TO CALLER               F348
+EXIT    LDL   RETS              RETURN TO CALLER               F
+         RSUB                                                     F351
+        RSUB                                                   F
+HEADREC  BYTE    X'000048'         CHARACTER 'H'                  F354
+HEADREC BYTE  X'000048'         CHARACTER 'H'                  F
+TEXTREC  BYTE    X'000054'         CHARACTER 'T'                  F357
+TEXTREC BYTE  X'000054'         CHARACTER 'T'                  F
+ENDREC   BYTE    X'000045'         CHARACTER 'E'                  F360
+ENDREC  BYTE  X'000045'         CHARACTER 'E'                  F
+ZERO     WORD    0                                                F363
+ZERO    WORD  0                                                F
+K2       WORD    2                                                F366
+K2      WORD  2                                                F
+K6       WORD    6                                                F369
+K6      WORD  6                                                F
+K7       WORD    7                                                F372
+K7      WORD  7                                                F
+K10      WORD    10                                               F375
+K10     WORD  10                                               F
+K15      WORD    15                                               F378
+K15     WORD  15                                               F
+K16      WORD    16                                               F381
+K16     WORD  16                                               F
+HEX04    BYTE    X'000004'         END-OF-FILE                    F384
+HEX04   BYTE  X'000004'         END-OF-FILE                    F
+HEX30    BYTE    X'000030'         CHARACTER '0'                  F387
+HEX30   BYTE  X'000030'         CHARACTER '0'                  F
+INPUT    BYTE    X'F2'                                            F390
+INPUT   BYTE  X'F2'                                            F
+ADDRESS  RESW    1                                                F391
+ADDRESS RESW  1                                                F
+LIMIT    RESW    1                                                F394
+LIMIT   RESW  1                                                F
+TEMP     RESW    1                                                F397
+TEMP    RESW  1                                                F
+RETGA    RESW    1                                                F400
+RETGA   RESW  1                                                F
+RETGD    RESW    1                                                F403
+RETGD   RESW  1                                                F
+RETS     RESW    1                                                F406
+RETS    RESW  1                                                F
+         END     LOADER                                           F409
+        END   LOADER                                           F

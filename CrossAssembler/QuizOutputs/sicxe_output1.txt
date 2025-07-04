@@ -1,0 +1,32 @@
+Line    Loc     Source statement      Object code
+
+  1     0000    COPY START 0
+  2     0000         var1 RESW 10
+  3     001E         var2 RESB 12
+  4     000F         var3 EQU  15
+  5     002A    BEGIN hio             F4
+  6     002B    addr s,t              9045
+  7     002D    divr b,a              9C30
+  8     002F    addf var3,x           5BAFDD
+  9     0032    +div var2,x           2790001E
+ 10     0036    compr t,b             A053
+ 11     0038    clear a               B400
+ 12     003A    +and var3             4310000F
+ 13     003E    compf 0               8B0000
+ 14     0041    float                 C0
+ 15     0042    MIDDLE +j BEGIN       3F10002A
+ 16     0046    jsub MIDDLE           4B2FF9
+ 17     0049    rsub                  4C0000
+ 18     004C    norm                  C8
+ 19     004D    lda var2,x            03AFCE
+ 20     0050    +mulf var1            63100000
+ 21     0054    mulr a,f              9806
+ 22     0056    jeq MIDDLE            332FE9
+ 23     0059    rmo x,a               AC10
+ 24     005B    FINAL stt var1        872FA2
+ 25     005E    subf var3,x           5FAFAE
+ 26     0061    subr a,b              9403
+ 27     0063    tixr s                B840
+ 28     0065    +wd var2              DF10001E
+ 29     0069    tio                   F8
+ 30             END FIRST
